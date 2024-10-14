@@ -1,16 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hello_word_app/model/weather_forecast.dart';
+import 'package:flutter_hello_word_app/service/api_service.dart';
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key}); // Gardez 'const' ici
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
 
-  // Rendre la liste constante
-  static const List<Map<String, dynamic>> weatherData = [
-    {"date": "2024-10-01", "temperatureC": 11, "summary": "Balmy"},
-    {"date": "2024-10-02", "temperatureC": 40, "summary": "Balmy"},
-    {"date": "2024-10-03", "temperatureC": 54, "summary": "Warm"},
-    {"date": "2024-10-04", "temperatureC": 19, "summary": "Bracing"},
-    {"date": "2024-10-05", "temperatureC": -17, "summary": "Sweltering"},
-  ];
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  late Future<List<WeatherForecast>> futureWeather;
+
+  @override
+  void initState() {
+    super.initState();
+    futureWeather = ApiService().fetchWeatherForecast();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,16 +24,28 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Prévisions Météo'),
       ),
-      body: ListView.builder(
-        itemCount: weatherData.length,
-        itemBuilder: (context, index) {
-          final item = weatherData[index];
-          return ListTile(
-            title: Text(item["date"]),
-            subtitle: Text(
-              'Température: ${item["temperatureC"]} °C\nRésumé: ${item["summary"]}',
-            ),
-          );
+      body: FutureBuilder<List<WeatherForecast>>(
+        future: futureWeather,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Erreur: ${snapshot.error}'));
+          } else {
+            final weatherData = snapshot.data!;
+            return ListView.builder(
+              itemCount: weatherData.length,
+              itemBuilder: (context, index) {
+                final item = weatherData[index];
+                return ListTile(
+                  title: Text(item.date.toString()),
+                  subtitle: Text(
+                    'Température: ${item.temperatureC} °C\nRésumé: ${item.summary}',
+                  ),
+                );
+              },
+            );
+          }
         },
       ),
     );
