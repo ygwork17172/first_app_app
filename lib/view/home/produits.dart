@@ -77,12 +77,12 @@ class ProduitsCard extends StatelessWidget {
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
             child: Image.network(
-              ImageAssets.produiLigne ?? ImageAssets.produiLigne,
+              ImageAssets.produiLigne,
               fit: BoxFit.cover,
-              height: 150,
+              height: 230,
               width: double.infinity,
               errorBuilder: (context, error, stackTrace) {
-                return const Icon(Icons.error, size: 50);
+                return const Icon(Icons.error, size: 20);
               },
             ),
           ),
